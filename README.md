@@ -13,8 +13,7 @@ Bilibili视频下载器
 1.bilibili_api
 2.tqdm
 3.beautifulsoup
-
-4.ffmpeg
+4.ffmpy
 
 #### 参与贡献
 
