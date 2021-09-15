@@ -19,7 +19,7 @@ def by_bvid():
         except bilibili_api.exceptions.ApiException:
             print(">> ERROR: bvid 提供错误，必须是以 BV 开头的纯字母和数字组成的 12 位字符串（大小写敏感）。")
         else:
-            Download.auto(input_bvid)
+            Download.autodownload(input_bvid)
             exit()
 
 
@@ -48,8 +48,7 @@ def by_search():
                 exit()
             else:
                 print(f">> 你选中的是:{selected},对应标题为:{all_results[0][selected - 1]},BVID:{all_results[1][selected - 1]}")
-                print(">> 正在下载")
-                Download.auto(all_results[1][selected - 1])
+                Download.autodownload(all_results[1][selected - 1])
                 exit()
 
 

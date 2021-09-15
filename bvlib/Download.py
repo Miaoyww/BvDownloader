@@ -12,18 +12,16 @@ headers = {
 }
 
 
-def auto(bvid):
-    vdu_res = get_vdu(bvid)  # 获取 标题 作者 视频链接 音频链接
-    video_title = vdu_res[0]  # 获取标题
-    video_url = vdu_res[2]  # 获取视频链接
-    audio_url = vdu_res[3]  # 获取视频链接
-    if os.path.exists(f"{vdu_res[0]}.mp4"):  # 判断相同文件是否存在
+def autodownload(bvid):
+    video_info = get_video_info(bvid)  # 获取 标题 作者
+    av_url = get_download_url(bvid)  # 获取 视频链接 音频链接
+    if os.path.exists(f"{video_info[0]}.mp4"):  # 判断相同文件是否存在
         while True:
-            decide = input(f">> 相同文件: '{vdu_res[0]}.mp4' 已经存在，是否替换?(y/n): ")
+            decide = input(f">> 相同文件: '{video_info[0]}.mp4' 已经存在，是否替换?(y/n): ")
             if decide == "y":
-                os.remove(f"{vdu_res[0]}.mp4")
-                request_result(video_url, audio_url)
-                ffmpeg(vdu_res[0])
+                os.remove(f"{video_info[0]}.mp4")
+                down(av_url[0], av_url[1])
+                ffmpeg(video_info[0])
                 exit()
             elif decide == "n":
                 print(">> 已取消下载")
@@ -32,32 +30,42 @@ def auto(bvid):
                 exit()
             else:
                 print(">> 你只能输入y 或 n")
-    request_result(video_url, audio_url)
-    ffmpeg(video_title)
+    down(av_url[0], av_url[1])
+    ffmpeg(video_info[0])
+
+
+# 获取音视频链接
+def get_download_url(bvid):
+    new_bvid = video.Video(bvid)  # 实例化
+    url = sync(new_bvid.get_download_url(page_index=0))  # 获取资源链接
+
+    video_url = url['dash']['video'][0]['base_url']  # 视频链接
+    audio_url = url['dash']['audio'][0]['base_url']  # 音频链接
+    av_url = [video_url, audio_url]  # 将所有的信息集合成一个文件
+
+    return av_url
 
 
 # 获取视频信息
-def get_vdu(bvid):
+def get_video_info(bvid):
     new_bvid = video.Video(bvid)  # 实例化
     get_info = sync(new_bvid.get_info())  # 获取视频信息
-    url = sync(new_bvid.get_download_url(page_index=0))  # 获取资源链接
 
     video_title = get_info['title']  # 标题
     strs = r"[\/\\\:\*\?\"\<\>\|]"  # 非法字符的定义
     video_title = re.sub(strs, "_", video_title)  # 更改视频标题中所有的非法字符
-
     video_owner = get_info['owner']['name']  # 所有者
-    video_url = url['dash']['video'][0]['base_url']  # 视频链接
-    audio_url = url['dash']['audio'][0]['base_url']  # 音频链接
-    video_info = [video_title, video_owner, video_url, audio_url]  # 将所有的信息集合成一个文件
-    print(">> 输出视频信息: \n"
-          f">> 视频标题: {video_title} \n"
-          f">> 视频作者: {video_owner} \n")
+
+    video_info = [video_title,video_owner]
+    print(">> 视频信息: \n" 
+          f">> 标题: {video_title} \n"
+          f">> 作者: {video_owner}")
+
     return video_info
 
 
 # 下载
-def request_result(video_url, audio_url):
+def down(video_url, audio_url):
     get_video = requests.get(video_url, headers=headers, stream=True)  # 视频资源
     video_size = math.ceil(int(get_video.headers.get('Content-Length')) / 1024 / 1024)
     get_audio = requests.get(audio_url, headers=headers, stream=True)  # 音频资源
@@ -78,7 +86,7 @@ def request_result(video_url, audio_url):
 # 混流
 def ffmpeg(video_title):
     os.system(
-        fr'%cd%\FFmpeg\bin\ffmpeg.exe -loglevel quiet -i "videotemp.mp4" -i "audiotemp.mp3" -vcodec copy -acodec copy "{video_title}.mp4"')
+        fr'ffmpeg -loglevel quiet -i "videotemp.mp4" -i "audiotemp.mp3" -vcodec copy -acodec copy "{video_title}.mp4"')
     os.remove("videotemp.mp4")
     os.remove("audiotemp.mp3")
     print(">> 下载成功")
