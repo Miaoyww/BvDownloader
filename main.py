@@ -6,7 +6,7 @@
 #  By Miaomiaoywww
 
 import time
-from bvlib import Download,Page
+from bvlib import Download,Search
 import bilibili_api.exceptions
 from bilibili_api import video
 
@@ -31,7 +31,7 @@ def by_search():
         page = 1
         input_kyw = input(">> 搜索: ")
         while True:
-            all_results = Page.res_page(input_kyw, page)
+            all_results = Search.res_page(input_kyw, page)
             selected = int(input(">> 请输入序号: "))  # 提示输入序号
             if selected == 100:  # 1为翻页
                 print(">> 正在翻页")
