@@ -5,6 +5,7 @@ import os
 import re
 import math
 import time
+import ffmpy
 
 headers = {
     "User-Agent": "Mozilla/5.0",
@@ -85,8 +86,16 @@ def down(video_url, audio_url):
 
 # 混流
 def ffmpeg(video_title):
-    os.system(
-        fr'ffmpeg -loglevel quiet -i "videotemp.mp4" -i "audiotemp.mp3" -vcodec copy -acodec copy "{video_title}.mp4"')
+    ff = ffmpy.FFmpeg(
+    inputs={'videotemp.mp4': None,
+            'audiotemp.mp3': None
+    },
+    outputs={f'{video_title}.mp4': [
+        '-vcodec', 'copy',
+        '-acodec', 'copy'
+    ]}
+    )
+    ff.run()
     os.remove("videotemp.mp4")
     os.remove("audiotemp.mp3")
     print(">> 下载成功")
