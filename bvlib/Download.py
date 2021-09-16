@@ -87,13 +87,13 @@ def down(video_url, audio_url):
 # 混流
 def ffmpeg(video_title):
     ff = ffmpy.FFmpeg(
-    inputs={'videotemp.mp4': None,
-            'audiotemp.mp3': None
-    },
-    outputs={f'{video_title}.mp4': [
-        '-vcodec', 'copy',
-        '-acodec', 'copy'
-    ]}
+
+    inputs={
+        'videotemp.mp4': '-loglevel quiet','audiotemp.mp3': None
+        },
+    outputs={
+        f'{video_title}.mp4': ['-vcodec', 'copy','-acodec', 'copy']
+        }
     )
     ff.run()
     os.remove("videotemp.mp4")

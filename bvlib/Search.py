@@ -1,26 +1,27 @@
 from bs4 import *
 import requests
 
+# 头
 headers = {
     "User-Agent": "Mozilla/5.0",
     "Referer": "https://www.bilibili.com/"
 }
 
 
-# 获取搜索页面的内容
-def search(keyword, page):
+# 获取页面的html
+def get_html(keyword, page):
     url = rf"https://search.bilibili.com/all?keyword={keyword}&page={page}"
     res = requests.get(url, headers=headers)
     soup = BeautifulSoup(res.text, "html.parser")
     return soup
 
 
-# Bvid
+# 获取Bvid
 def get_bvid(bvid_soup):
     targets = bvid_soup.find_all('li', class_="video-item matrix")
     bvid = []
-    url = []
-    url2 = []
+    url = []  # 用于迭代出bvid
+    url2 = []  # 同
     for url_item in targets:
         url_targets = url_item.find_all("a", class_="img-anchor")
         url.append(url_targets[0].get("href"))
@@ -50,15 +51,15 @@ def get_title(title_soup):
     return title
 
 
-# 打印内容
-def res_page(keyword, page):
-    search_results = search(keyword, page)
+# 获取页面内容
+def get_content(keyword, page):
+    search_results = get_html(keyword, page)
     print(f">> ------ 当前页数:{page} ------")
-    title_results = get_title(search_results)
-    up_results = get_up(search_results)
-    bvid_results = get_bvid(search_results)
-    maxlist = len(title_results)
-    index = 1
+    title_results = get_title(search_results)  # 标题
+    up_results = get_up(search_results)  # up
+    bvid_results = get_bvid(search_results)  # bvid
+    maxlist = len(title_results)  # 最大序号 
+    index = 1  # 序号
     for (title_item, up_item) in zip(title_results, up_results):
         print(f"No.{index}: {title_item}")
         print(f"Up主: {up_item}")

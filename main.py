@@ -11,65 +11,60 @@ import bilibili_api.exceptions
 from bilibili_api import video
 
 
-def by_bvid():
-    while True:
-        input_bvid = input(">> Input: 输入Bvid: ")
-        try:
-            video.Video(input_bvid)
-        except bilibili_api.exceptions.ApiException:
-            print(">> ERROR: bvid 提供错误，必须是以 BV 开头的纯字母和数字组成的 12 位字符串（大小写敏感）。")
-        else:
-            Download.autodownload(input_bvid)
-            exit()
+def by_bvid(input_bvid):
+    Download.autodownload(input_bvid)
+    exit()
 
 
-def by_search():
-    print(">> 100可以翻到下一页")
-    print(">> 0可以重新搜索")
-    print(">> -100可以关闭程序")
+def by_search(keyword):
+    print(">> next可以翻到下一页")
+    print(">> close可以关闭程序")
+    page = 1
     while True:
-        page = 1
-        input_kyw = input(">> 搜索: ")
+        all_results = Search.get_content(keyword, page)
         while True:
-            all_results = Search.res_page(input_kyw, page)
-            selected = int(input(">> 请输入序号: "))  # 提示输入序号
-            if selected == 100:  # 1为翻页
+            selected = input(">> 请输入序号或指令: ")  # 提示输入
+            try:
+                selected = int(selected)
+            except:
+                pass
+            else:
+                if selected > all_results[2]: # 判断值
+                    print(">> 您输入的序号过大,请重新输入")
+                elif selected == 0 or selected < 0:
+                    print(">> 错误的序号")
+                else:
+                    print(f">> 你选中的是:{selected},对应标题为:{all_results[0][selected - 1]},BVID:{all_results[1][selected - 1]}")
+                    Download.autodownload(all_results[1][selected - 1])
+                    exit()
+            if selected == "next":  # 翻页
                 print(">> 正在翻页")
                 page = page + 1
-            elif selected > all_results[2]:  # 判断是否大于最大长度
-                print(">> 您输入的序号过大,请重新输入")
-            elif selected == +0:  # 0为重新搜索
-                print(">> 重新搜索")
                 break
-            elif selected == -100:  # -1为关闭
-                print(">> 正在关闭")
+            elif selected == "close":  # 关闭
+                print(">> 正在关闭")    
                 print("...")
                 time.sleep(2)
-                exit()
+                exit()        
             else:
-                print(f">> 你选中的是:{selected},对应标题为:{all_results[0][selected - 1]},BVID:{all_results[1][selected - 1]}")
-                Download.autodownload(all_results[1][selected - 1])
-                exit()
+                print(">> 错误的指令")
+
 
 
 if __name__ == '__main__':
     print("")
     print(">> 当前会下载登陆账号的最高画质")
-    print(">> 你可以选择一下两种Get视频的方式: ")
-    print(">> 1.Bvid直接Get     2.通过搜索Get")
+    print(">> 输入Bvid或视频名称以搜索")
+    print(">> 切勿高频搜索")
     print("")
     while True:
-        try:
-            decide = int(input(">> 请输入你的选择: "))
-            print("")
-        except ValueError:
-            print(">> 错误的选择")
-        else:
-            if decide == 1:
-                by_bvid()
-                break
-            elif decide == 2:
-                by_search()
-                break
+        input_value = input(">> 输入: ")
+        if input_value:  
+            try:
+                video.Video(input_value)
+            except bilibili_api.exceptions.ApiException:
+                by_search(input_value)
             else:
-                print(">> 错误的选择")
+                by_bvid(input_value)
+        else:
+            print(">> 不可为空")
