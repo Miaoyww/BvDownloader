@@ -1,6 +1,7 @@
 from bs4 import *
 import requests
 
+
 # 头
 headers = {
     "User-Agent": "Mozilla/5.0",
@@ -55,14 +56,23 @@ def get_title(title_soup):
 def get_content(keyword, page):
     search_results = get_html(keyword, page)
     print(f">> ------ 当前页数:{page} ------")
-    title_results = get_title(search_results)  # 标题
-    up_results = get_up(search_results)  # up
-    bvid_results = get_bvid(search_results)  # bvid
-    maxlist = len(title_results)  # 最大序号 
+    title_results = get_title(search_results)  # 视频标题
+    up_results = get_up(search_results)  # up主名称
+    bvid_results = get_bvid(search_results)  # 视频bvid
+    maxlist = len(title_results)  # 一个页面最多显示的视频数
     index = 1  # 序号
+    result = {
+        
+    }
     for (title_item, up_item) in zip(title_results, up_results):
         print(f"No.{index}: {title_item}")
         print(f"Up主: {up_item}")
+        result[index] = {
+            "title": title_item,
+            "up": up_item,
+            "bvid": bvid_results[index - 1]
+        }
         index = index + 1
     print(">> ------ END")
-    return title_results, bvid_results, maxlist
+
+    return result

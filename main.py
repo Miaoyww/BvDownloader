@@ -1,9 +1,5 @@
-#  Copyright (c) 2021-2021. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-#  Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
-#  Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
-#  Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
-#  Vestibulum commodo. Ut rhoncus gravida arcu.
-#  By Miaomiaoywww
+# -*- coding: utf-8 -*-
+
 
 import time
 from bvlib import Download,Search
@@ -19,6 +15,7 @@ def by_bvid(input_bvid):
 def by_search(keyword):
     print(">> next可以翻到下一页")
     print(">> close可以关闭程序")
+    print(">> restart可以返回主界面")
     page = 1
     while True:
         all_results = Search.get_content(keyword, page)
@@ -27,15 +24,17 @@ def by_search(keyword):
             try:
                 selected = int(selected)
             except:
-                pass
+                print(">> 请输入一个正确的 数字")
             else:
-                if selected > all_results[2]: # 判断值
-                    print(">> 您输入的序号过大,请重新输入")
-                elif selected == 0 or selected < 0:
+                if selected not in all_results:
                     print(">> 错误的序号")
                 else:
-                    print(f">> 你选中的是:{selected},对应标题为:{all_results[0][selected - 1]},BVID:{all_results[1][selected - 1]}")
-                    Download.autodownload(all_results[1][selected - 1])
+                    print(
+                        f">> 你选中的是:{selected},"
+                        f"对应标题为:{all_results[selected]['title']},"
+                        f"BVID:{all_results[selected]['bvid']}"
+                        )
+                    Download.autodownload(all_results[selected]['bvid'])
                     exit()
             if selected == "next":  # 翻页
                 print(">> 正在翻页")
@@ -43,20 +42,17 @@ def by_search(keyword):
                 break
             elif selected == "close":  # 关闭
                 print(">> 正在关闭")    
-                print("...")
-                time.sleep(2)
-                exit()        
+                time.sleep(1)
+                exit()
+            elif selected == "restart":  # 重启
+                print(">> 正在重启")
+                print("\n\n")
+                main()
             else:
                 print(">> 错误的指令")
+    
 
-
-
-if __name__ == '__main__':
-    print("")
-    print(">> 当前会下载登陆账号的最高画质")
-    print(">> 输入Bvid或视频名称以搜索")
-    print(">> 切勿高频搜索")
-    print("")
+def main():
     while True:
         input_value = input(">> 输入: ")
         if input_value:  
@@ -68,3 +64,12 @@ if __name__ == '__main__':
                 by_bvid(input_value)
         else:
             print(">> 不可为空")
+
+
+if __name__ == '__main__':
+    print("")
+    print(">> 当前会下载登陆账号的最高画质")
+    print(">> 输入Bvid或视频名称以搜索")
+    print(">> 切勿高频搜索")
+    print("")
+    main()

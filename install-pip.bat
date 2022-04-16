@@ -1,0 +1,1 @@
+pip install -r packages_list.txt
